@@ -404,8 +404,8 @@ def subir_imagenes(request):
                 img.save()
         return redirect('subir_imagenes')
 
-    imagenes = Imagen.objects.all()
-    return render(request, 'subir_imagenes.html', {'imagenes': imagenes})
+    vimagenes = Imagen.objects.all()
+    return render(request, 'subir_imagenes.html', {'imagenes': vimagenes})
 
 #04/11/2024
 def eliminar_imagen(request, imagen_id):
