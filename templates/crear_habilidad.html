@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crear Habilidad nueva</title>
+</head>
+<body>
+    <center>
+    <h1>Crear Habilidad nueva</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="habilidad">Habilidad:</label>
+        <input type="text" name="habilidad" id="habilidad" value="{{ habilidad.habilidad }}" required><br>
+
+        <label for="nivel">Nivel:</label>
+        <input type="text" name="nivel" id="nivel" value="{{ habilidad.nivel }}" required><br>
+
+        <button type="submit">Crear</button>
+        <button><a href="{% url 'habilidades' %}" class="btn btn-warning btn-sm">Cancelar</a></button>
+    </form>
+    </center>
+</body>
+</html>

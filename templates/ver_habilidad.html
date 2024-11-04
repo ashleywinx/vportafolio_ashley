@@ -1,0 +1,39 @@
+cd{% extends "base.html" %}
+{# {% load staticfiles %} #}
+{% load static %}
+
+{% block head %}
+<title>Networking</title>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+ {% endblock %}
+
+ {% block content %}
+
+ <br><br><br><br><br><br>
+ <center>
+  <font color="#FF69B4" size="5" face="Comic Sans MS, Arial, Verdana">🌸 VER HABILIDAD 🌸</font>
+
+  <font size="3">
+    <table class="table table-bordered" style="border: 2px solid #FFB6C1; border-radius: 10px; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);">
+      <tr>
+        <td bgcolor="#FFB6C1" style="padding: 10px; font-weight: bold;">ID</td>
+        <td>{{ habilidad.id }}</td>
+      </tr>
+      <tr>
+        <td bgcolor="#FFD1DC" style="padding: 10px; font-weight: bold;">HABILIDAD</td>
+        <td>{{ habilidad.habilidad }}</td>
+      </tr>
+      <tr>
+        <td bgcolor="#FFB6C1" style="padding: 10px; font-weight: bold;">NIVEL</td>
+        <td>{{ habilidad.nivel |upper|slice:"0:12" }}</td>
+      </tr>
+      <!--<tr>
+        <td bgcolor="#FFD1DC" style="padding: 10px; font-weight: bold;">CATEGORIAS</td>
+        <td>{{ experiencia.categoria |upper|slice:"0:12" }}</td>
+      </tr>-->
+    </table>
+  </font>
+</center>
+{% endblock content %}

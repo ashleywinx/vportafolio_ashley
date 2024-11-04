@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+{% block head %}
+<title>habilidades222</title>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qJQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+<style>
+  #panda-image {
+    display: none;
+    margin-top: 20px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<br><br><br><br>
+<center>
+  <h1>Hola, estás en habilidades222/empresa :)</h1>
+  <button id="show-panda" class="btn btn-primary">Sorpresa</button>
+  <br>
+    <img id="panda-image" src="{% static 'images/panda.jpg' %}" alt="Oso Panda" class="img-responsive">
+</center>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+  document.getElementById("show-panda").addEventListener("click", function() {
+    document.getElementById("panda-image").style.display = "block";
+  });
+</script>
+{% endblock %}
+
