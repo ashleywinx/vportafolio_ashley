@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
+from lib2to3.fixes.fix_input import context
+
 from django.shortcuts import render, redirect, get_object_or_404 #
 from django.http import HttpResponse
 from appportafolio.models import *
@@ -14,6 +17,12 @@ from django.views.decorators.csrf import csrf_protect #
 
 from django.contrib.auth.models import User #
 from django.conf import settings #
+from django.views.decorators.csrf import csrf_exempt #06/11/24
+
+#email 06/11/24
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.contrib import messages
 
 #------------------------------------------------------------------------------------------------
 # Create your views here.
@@ -28,7 +37,7 @@ import urllib
 
 def home(request):
     global DEBUG
-    print("Hola estoy en home")
+    print("\033[35mHola estoy en home\033[0m")
     nombreProyecto = 'PORTAFOLIO'
     fechaCreacion = '23/09/2024'
     
@@ -95,7 +104,7 @@ def home(request):
 
 def sobremi(request):
     DEBUG="SI"
-    print("Hola estoy en sobre mi "+str(DEBUG))
+    print("\033[35mHola estoy en sobre mi "+str(DEBUG)+"\033[0m")
     nombre = 'ashley'
     edad = 20
     telefono = '654987123'
@@ -114,7 +123,7 @@ def sobremi(request):
 
 #profe 17/10/2024
 def login_view(request):
-    print("login_view")
+    print("\033[35mlogin_view\033[0m")
 
     if request.method == 'POST':
         username = request.POST['username']
@@ -158,7 +167,7 @@ def cerrar(request):
     password = request.user.password
     idusuario = request.user.id
 
-    print("logout........."+username+"clave ="+str(password)+"id ="+str(idusuario))
+    print("\033[35mlogout........."+username+"clave ="+str(password)+"id ="+str(idusuario)+"\033[0m")
     user = authenticate(request, username=username, password=password)
 
     #desconectamos al usuario
@@ -168,7 +177,7 @@ def cerrar(request):
 #------------------------------------------------------------------------------------------------
 
 def habilidades(request):
-    print("Hola estoy en habilidades")
+    print("\033[35mHola estoy en habilidades\033[0m")
     #select * from Habilidades order by habilidad
     #habilidades es un objeto de tipo queryset
     lista_habilidades = Habilidad.objects.all().order_by()
@@ -460,6 +469,26 @@ def editar_video(request, video_id):
         video.save()
         return redirect('subir_videos')
     return redirect('subir_videos')
+
+#------------------------------------------------------------------------------------------------
+
+def contacto(request):
+    if request.method == "POST":
+        nombre = request.POST.get('nombre')
+        email = request.POST.get('email')
+        asunto = request.POST.get('asunto')
+        mensaje = request.POST.get('mensaje')
+
+        context = {'nombre': nombre, 'email': email, 'asunto': asunto, 'mensaje': mensaje}
+        template = render_to_string('email_template.html', context=context)
+
+        email = EmailMessage(asunto, template, settings.EMAIL_HOST_USER, ['ashleychuquitarco2@gmail.com'])
+        email.fail_silenty = False #que no marque error en gmail
+        email.send()
+
+        messages.success(request, "El mensaje se envió correctamente") #chatgpt
+        return redirect('home')
+    return render(request, 'correo.html')
 
 #------------------------------------------------------------------------------------------------
 #hecha por mi por aburrimiento

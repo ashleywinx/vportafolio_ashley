@@ -69,8 +69,8 @@ TEMPLATES = [
 if DEBUG == False:
     DATABASES = {
         'default':{
-            'ENGINE': 'django.db.brackends.squile3',
-            'NAME': BASE_DIR/ 'db.squilte3',
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR/ 'db.sqlite3',
         }
     }
 
@@ -149,6 +149,14 @@ STATICFILES_DIRS = (
     #os.path.join(BASE_DIR, 'static'),
     #os.path.join(BASE_DIR, 'img'),
 )
+
+#CORREO ELECTRÓNICO
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'ashleychuquitarco2@gmail.com' #emisor --> quien manda email
+EMAIL_HOST_PASSWORD = 'cvbr zzxj rdqc aojz'
+EMAIL_USE_TLS = True #seguridad de gmail
 
 # List of finder classes that know how to find static files in
 STATICFILES_FINDERS = (

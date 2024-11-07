@@ -40,8 +40,8 @@ urlpatterns = [
     re_path('register/', register_view, name='register'),
     re_path('cerrar/', views.cerrar, name='cerrar'),
 
-    path('login/', login_view, name='login'),
-    path('register/', register_view, name='register'),
+    #path('login/', login_view, name='login'),
+    #path('register/', register_view, name='register'),
 
     path('subir_imagenes/', subir_imagenes, name='subir_imagenes'),
     path('imagen/editar/<int:imagen_id>/', views.editar_imagen, name='editar_imagen'),
@@ -49,6 +49,8 @@ urlpatterns = [
     path('subir_videos/', subir_videos, name='subir_videos'),
     path('video/editar/<int:video_id>/', views.editar_video, name='editar_video'),
     path('video/eliminar/<int:video_id>/', views.eliminar_video, name='eliminar_video'),
+
+    path('contacto/', views.contacto, name='contacto'),
     re_path('empresa/', views.empresa, name='empresa'),
 ]
 
