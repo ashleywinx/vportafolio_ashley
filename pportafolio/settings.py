@@ -76,7 +76,7 @@ if DEBUG == False:
 
 #modo local de Windows
 if DEBUG == True:
-    print("*********************DESARROLLO EN LOCAL**************")
+    print("********************* DESARROLLO EN LOCAL postgres **************")
     DATABASES = {
         'default':{
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
