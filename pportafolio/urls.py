@@ -42,6 +42,8 @@ urlpatterns = [
 
     #path('login/', login_view, name='login'),
     #path('register/', register_view, name='register'),
+    path('generar_pdf/<int:entrevistador_id>/', views.generar_pdf, name='generar_pdf'),
+    path('listar_entrevistadores/', views.listar_entrevistadores, name='listar_entrevistadores'),
 
     path('subir_imagenes/', subir_imagenes, name='subir_imagenes'),
     path('imagen/editar/<int:imagen_id>/', views.editar_imagen, name='editar_imagen'),

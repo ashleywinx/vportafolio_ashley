@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from lib2to3.fixes.fix_input import context
+from http.client import HTTPResponse
 
 from django.shortcuts import render, redirect, get_object_or_404 #
 from django.http import HttpResponse
@@ -23,18 +23,19 @@ from django.views.decorators.csrf import csrf_exempt #06/11/24
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.contrib import messages
+from pportafolio.wsgi import application
+
+#PDF'S 08/11/2024
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors #para los colores del pdf
 
 #------------------------------------------------------------------------------------------------
 # Create your views here.
 from datetime import datetime
 from django.utils import timezone
 
-from django.contrib.auth.models import User
-
-import urllib
-
 #------------------------------------------------------------------------------------------------
-
 def home(request):
     global DEBUG
     print("\033[35mHola estoy en home\033[0m")
@@ -101,7 +102,6 @@ def home(request):
     return render(request, 'home.html', context=context)
 
 #------------------------------------------------------------------------------------------------
-
 def sobremi(request):
     DEBUG="SI"
     print("\033[35mHola estoy en sobre mi "+str(DEBUG)+"\033[0m")
@@ -120,8 +120,7 @@ def sobremi(request):
     return render(request, 'sobremi.html', context=context)
 
 #------------------------------------------------------------------------------------------------
-
-#profe 17/10/2024
+#profe 17/10/2024 "ENTREVISTADORES"
 def login_view(request):
     print("\033[35mlogin_view\033[0m")
 
@@ -174,8 +173,51 @@ def cerrar(request):
     logout(request)
     return redirect('/')
 
-#------------------------------------------------------------------------------------------------
+#----- 08/11/2024 -----------------------------------------------
+# controlador de la vista para montar la lista de entrevistadores.
+def listar_entrevistadores(request):
+    entrevistadores = Entrevistador.objects.all()
+    return render(request, 'listar_entrevistadores.html', {'entrevistadores': entrevistadores})
 
+def generar_pdf(request, entrevistador_id):
+    entrevistador = Entrevistador.objects.get(id=entrevistador_id)
+
+    # Crear una respuesta HTTP con contenido tipo PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="entrevistador_{entrevistador.id}.pdf"'
+
+    # Crear el objetp canvas de Reportlab
+    p = canvas.Canvas(response, pagesize=letter)
+
+    # Configuración del titulo
+    p.setFont("Helvetica-Bold", 16)
+    p.setFillColor(colors.darkblue)
+    p.drawCentredString(300, 770, "Reporte de Entrevistador")
+
+    # Volver al tamaño de fuente normal
+    p.setFont("Helvetica", 12)
+    p.setFillColor(colors.black)
+
+    # Datos del entrevistador
+    p.drawString(100, 720, f"ID: {entrevistador.id}")
+    p.drawString(100, 700, f"Empresa: {entrevistador.empresa or 'N/A'}")
+    p.drawString(100, 680, f"Fecha de Entrevista: {entrevistador.fecha_entrevista or 'N/A'}")
+    p.drawString(100, 660, f"Conectado: {'Si' if entrevistador.conectado else 'No'}")
+    p.drawString(100, 640, f"Seleccionado: {'Si' if entrevistador.seleccionado else 'No'}")
+    p.drawString(100, 620, f"Usuario: {entrevistador.user.username if entrevistador.user else 'N/A'}")
+
+    # Añadir avatar si existe
+    if entrevistador.avatar:
+        avatar_path = entrevistador.avatar.path
+        p.drawImage(avatar_path, 100, 500, width=100, height=100)
+
+    # Guardar el PDF
+    p.showPage()
+    p.save()
+
+    return response
+
+#------------------------------------------------------------------------------------------------
 def habilidades(request):
     print("\033[35mHola estoy en habilidades\033[0m")
     #select * from Habilidades order by habilidad
@@ -272,7 +314,7 @@ def categorias(request):
     if page == None:
         print(" page recibe fuera de get o post NONE=" + str(page))
         page = paginator.num_pages #--> variable para todas las páginas
-        #(ejemplo: iniciar sesion en iberia, y que tu nombre este visible todo el rato)
+        #(ejemplo: iniciar sesion en iberia, y que tu nombre este visible all el rato)
         #variable de sesión
         request.session["pagina"] = page
     else:
@@ -471,7 +513,6 @@ def editar_video(request, video_id):
     return redirect('subir_videos')
 
 #------------------------------------------------------------------------------------------------
-
 def contacto(request):
     if request.method == "POST":
         nombre = request.POST.get('nombre')
