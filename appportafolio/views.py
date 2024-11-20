@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from http.client import HTTPResponse
-
 from django.shortcuts import render, redirect, get_object_or_404 #
 from django.http import HttpResponse
 from appportafolio.models import *
@@ -23,12 +21,16 @@ from django.views.decorators.csrf import csrf_exempt #06/11/24
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.contrib import messages
-from pportafolio.wsgi import application
+from pportafolio.wsgi import application #no lo tiene el profe, pero si lo esta usando el programa
 
 #PDF'S 08/11/2024
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors #para los colores del pdf
+
+#curriculum con reportlab 14/11/24
+from reportlab.lib.utils import ImageReader
+import os
 
 #------------------------------------------------------------------------------------------------
 # Create your views here.
@@ -530,6 +532,181 @@ def contacto(request):
         messages.success(request, "El mensaje se envió correctamente") #chatgpt
         return redirect('home')
     return render(request, 'correo.html')
+
+#------------------------------------------------------------------------------------------------
+#vista para gregar un curriculum (solo teléfono y email) 14/11/24
+def agregar_curriculum(request):
+    if request.method == 'POST':
+        personal_id = request.POST.get('personal_id')
+        '''nombre = request.POST.get('nombre')
+        ap1 = request.POST.get('ap1')
+        ap2 = request.POST.get('ap2')'''
+        email = request.POST.get('email')
+        telefono = request.POST.get('telefono')
+
+        # Obtener o crear un objeto de Personal
+        personal, created = Personal.objects.get_or_create(
+            nombre=nombre, apellido1=ap1, apellido2=ap2
+        )
+
+        # Crear un nuevo objeto Curriculum, asignando el objeto Personal
+        curriculum = Curriculum(
+            personal=personal,  # Relación con el objeto Personal
+            email=email,
+            telefono=telefono
+        )
+        curriculum.save()
+
+        return redirect('ver_curriculum', pk=curriculum.pk)
+    return render(request, 'agregar_curriculum.html')
+
+#Vista para ver un curriculum
+def ver_curriculum(request, pk):
+    curriculum = get_object_or_404(Curriculum, pk=pk)
+    estudios = DetalleCurriculumEstudio.objects.filter(curriculum=curriculum)
+    experiencias = DetalleCurriculumExperiencia.objects.filter(curriculum=curriculum)
+
+    context = {'curriculum': curriculum, 'estudios': estudios, 'experiencias': experiencias}
+    return render (request, 'ver_curriculum.html', context=context)
+
+#El controlador que genera el pdf
+def generar_pdf(request, entrevistador_id):
+    curriculum = get_object_or_404(Curriculum, id=entrevistador_id)
+    estudios = DetalleCurriculumEstudio.objects.filter(curriculum=curriculum)
+    experiencias = DetalleCurriculumExperiencia.objects.filter(curriculum=curriculum)
+
+    #crear la respuesta HttpResponse con tipo de contenido PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="curriculum_{curriculum.personal.nombre}_{curriculum.personal.apellido1}.pdf"'
+
+    #crear un objeto canvas de ReportLab para generar el PDF
+    c = canvas.Canvas(response, pagesize=letter)
+    width, height=letter #tamaño de la página
+
+    #cargar imagen de avatar
+    try:
+        avatar_path = "C:/vportafolio/pportafolio/static/images/chica3.jpg"
+        #avatar_path = "C:/vportafolio/pportafolio/media/MEDIA/moneda3.jpg"
+        #avatar_path = os.path.join(settings.MEDIA_ROOT, "MEDIA/moneda3.jpg")
+        avatar = ImageReader(avatar_path)
+        c.drawImage(avatar, width - 150, height - 150, width=100, height=100)
+    except Exception as e:
+        print(f"No se pudo cargar la imagen: {e}")
+        pass #si no se encuentra la imagen, el PDF se generará sin ella
+
+    #Titulo del currículum en color
+    c.setFont("Helvetica", 12)
+    c.setFillColor(colors.HexColor("#4B8BBE")) #cambia a cualquier color hex que prefieras
+    c.drawString(100, height -100, f"Curriculum de {curriculum.personal.nombre} {curriculum.personal.apellido1}")
+
+    #Información de contacto en color diferente
+    c.setFont("Helvetica", 12)
+    c.setFillColor(colors.HexColor("#306998")) #otro color para variar
+    c.drawString(100, height -130, f"Email: {curriculum.email}")
+    c.drawString(100, height -150, f"Teléfono {curriculum.telefono}")
+
+    #seccion de estudios en otro color
+    y_position = height -200
+    c.setFont("Helvetica-Bold", 14)
+    c.setFillColor(colors.HexColor("#FFD43B"))
+    c.drawString(100, y_position, "Estudios:")
+
+    #mostrar cada estudio con detalles
+    c.setFont("Helvetica", 12)
+    y_position -= 20
+
+    for estudio in estudios:
+        c.setFillColor(colors.black)
+        c.drawString(100, y_position, f"{estudio.estudio.titulacion} en {estudio.estudio.nombreLugar} ({estudio.estudio.fecha_inicio} - {estudio.estudio.fecha_fin})")
+        #c.drawString(100, y_position, f"{estudio.titulo} en {estudio.nombreLugar} ({estudio.fecha_inicio} - {estudio.fecha_fin})")
+        y_position -= 20
+
+    #seccion de experiencia laboral
+    y_position -= 40
+    c.setFont("Helvetica-Bold", 14)
+    c.setFillColor(colors.HexColor("#306998"))
+    c.drawString(100, y_position, "Experiencia laboral:")
+
+    y_position -= 20
+    c.setFont("Helvetica", 12)
+
+    for experiencia in experiencias:
+        c.setFillColor(colors.blank)
+        c.drawString(100, y_position, f"{experiencia.categoria} en {experiencia.empresa} ({experiencia.fecha_inicio} - {experiencia.fecha_fin})")
+        y_position -= 20
+
+    #finalizar el PDF
+    c.showPage() #si tienes más páginas
+    c.save()
+
+    return response
+
+#------------------------------------------------------------------------------------------------
+#vista para ver las noticias 18/11/24
+def lista_noticias(request):
+    noticias = Noticia.objects.all().order_by('-fecha_creacion')
+    return render(request, 'lista_noticias.html', {'noticias': noticias})
+
+#vista para crear una nueva noticia
+def crear_noticia(request):
+    if request.method == 'POST':
+        titulo = request.POST.get('titulo')
+        contenido = request.POST.get('contenido')
+        imagen = request.FILES.get('imagen')
+
+        if titulo and contenido:
+            noticia = Noticia.objects.create(titulo=titulo, contenido=contenido, imagen=imagen)
+            return redirect('lista_noticias')
+        else:
+            return HttpResponse("ERROR: El título y el contenido son obligatorios.", status=400)
+
+    return render(request, 'crear_noticia.html')
+
+#------20-11-24--------valoración-con-estrellas--------------------------------------------------
+def listar_valoraciones(request):
+    valoraciones = Valoracion.objects.all()
+    return render(request, 'List.html', {'valoraciones': valoraciones})
+
+def actualizar_valoracion(request, pk):
+    valoracion = get_object_or_404(Valoracion, pk=pk)
+
+    if request.method == 'POST':
+        # Obtener valores enviados en el formulario
+        votos_entrevista = int(request.POST.get('votos_entrevista', valoracion.votos_entrevista))
+        votos_empresa = int(request.POST.get('votos_empresa', valoracion.votos_empresa))
+
+        # Actualizar los campos de la valoración #Actualizar los votos y recalcular la media
+        valoracion.votos_entrevista = votos_entrevista
+        valoracion.votos_empresa = votos_empresa
+        valoracion.media_aspectos = (votos_entrevista) + float(votos_empresa) / 2
+        valoracion.save()
+        return redirect('listar_valoraciones')
+
+    return render(request, 'update.html', {'valoracion': valoracion})
+
+def añadir_valoracion(request):
+
+    if request.method == 'POST':
+        entrevista = request.POST.get('entrevista')
+        empresa = request.POST.get('empresa')
+        votos_entrevista = int(request.POST.get('votos_entrevista', 0))
+        votos_empresa = int(request.POST.get('votos_empresa', 0))
+
+        # Calcular la media de los aspectos
+        media_aspectos = (votos_entrevista + votos_empresa) / 2
+
+        # Crear y guardar la nueva valoración
+        nueva_valoracion = Valoracion.objects.create(
+            entrevista=entrevista,
+            empresa=empresa,
+            votos_entrevista=votos_entrevista,
+            votos_empresa=votos_empresa,
+            media_aspectos=media_aspectos
+        )
+
+        return redirect('listar_valoraciones')
+
+    return render(request, 'add.html')
 
 #------------------------------------------------------------------------------------------------
 #hecha por mi por aburrimiento

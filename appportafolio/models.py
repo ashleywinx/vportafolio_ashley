@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from django.db import models
 
 from django.contrib.auth.models import User #para el user
+from django.utils import timezone
 
 #LOS MODELOS SON LAS TABLAS DE LA BASE DE DATOS :)
 
@@ -105,7 +106,6 @@ class Experiencia(models.Model):
     def __str__(self):
         return "%s,%s,%s,%s,%s,%s % (self.id,self.empresa.self.fecha_inicio,self.fecha_fin,self.observaciones,self.categoria)"
 
-
 #######################
 # Los Entrevistadores # 29/10/2024
 #######################
@@ -163,3 +163,70 @@ class Video(models.Model):
 	def __str__(self):
 		return "%s, %s, %s" % (self.id, self.video, self.comentario)
 
+################################################
+# CURRICULUM - 8/11/24 - YO - 14/11/24
+################################################
+class Curriculum (models.Model):
+	id = models.AutoField(primary_key=True)
+	personal = models.ForeignKey(Personal, on_delete=models.CASCADE, related_name='curriculums')
+	email = models.EmailField("Email", max_length=100, null=True, blank=True) #se valida solo
+	telefono = models.IntegerField("Telefono", null=True, blank=True) #no puede tener max_length
+
+	class Meta:
+		verbose_name = 'curriculum'
+		verbose_name_plural = 'curriculums'
+		ordering = ['id']
+
+	def __str__(self):
+		# Accediendo a los campos del modelo Personal a través de la relación
+		return f"Curriculum de {self.personal.nombre} {self.personal.apellido1} {self.personal.apellido2}"
+		#return "%s, %s, %s, %s, %s, %s" % (self.id, self.nombre, self.ap1, self.ap2, self.email, self.telefono)
+#--------- yo ------
+
+# Modelo DetalleCurriculumEstudio
+class DetalleCurriculumEstudio(models.Model):
+    id = models.AutoField(primary_key=True)
+    estudio = models.ForeignKey(Estudio, on_delete=models.CASCADE, related_name='detalle_curriculums')
+    curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Estudio: {self.estudio.titulacion} para el curriculum de {self.curriculum.personal.nombre}"
+
+
+# Modelo DetalleCurriculumExperiencia
+class DetalleCurriculumExperiencia(models.Model):
+    id = models.AutoField(primary_key=True)
+    experiencia = models.ForeignKey(Experiencia, on_delete=models.CASCADE)
+    curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Experiencia: {self.experiencia.empresa} para el curriculum de {self.curriculum.personal.nombre}"
+
+################################################
+# NOTICIAS 18/11/24
+################################################
+class Noticia(models.Model):
+	id = models.AutoField(primary_key=True)
+	titulo = models.CharField("Titulo", max_length=200, null=True, blank=True)
+	contenido = models.TextField()
+	fecha_creacion = models.DateTimeField(auto_now_add=True)
+	imagen = models.ImageField('Image', blank=True, null=True, upload_to="media/")
+
+	def __str__(self):
+		return self.titulo
+
+################################################
+# VALORACIÓN - ESTRELLAS - 20/11/24
+################################################
+class Valoracion (models.Model):
+	id = models.AutoField(primary_key = True)
+	votos_entrevista = models.DecimalField("Votos Entrevista", max_digits=3, decimal_places=1, null=True, blank=True)
+	votos_empresa = models.DecimalField("Votos Empresa", max_digits=3, decimal_places=1, null=True, blank=True)
+	media_aspectos = models.DecimalField("Media Aapectos", max_digits=3, decimal_places=1, null=True , blank=True)
+	entrevista = models.CharField("Descripción Entrevista", max_length=200, null=True, blank=True)
+	empresa = models.CharField("Descripción Empresa", max_length=200, null=True, blank=True)
+	num_valoraciones = models.IntegerField("Número de Valoraciones", null=True, blank=True)
+	timestamp = models.DateTimeField("Fecha", default=timezone.now)
+
+	def __str__(self):
+		return f"{self.id}, {self.votos_entrevista}, {self.votos_empresa}, {self.media_aspectos}, {self.entrevista}, {self.timestamp}"

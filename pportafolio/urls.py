@@ -53,6 +53,15 @@ urlpatterns = [
     path('video/eliminar/<int:video_id>/', views.eliminar_video, name='eliminar_video'),
 
     path('contacto/', views.contacto, name='contacto'),
+    path('agegar/', views.agregar_curriculum, name='agregar_curriculum'),
+    path('ver/<int:pk>/', views.ver_curriculum, name='ver_curriculum'),
+    path('generar_pdf/<int:entrevistador_id>/', views.generar_pdf, name='generar_pdf'),
+
+    path('lista_noticias/', views.lista_noticias, name='lista_noticias'),
+    path('crear_noticia/', views.crear_noticia, name='crear_noticia'),
+    path('listar_valoraciones/', views.listar_valoraciones, name='listar_valoraciones'),
+    path('actualizar_valoracion/<int:pk>/edit/', views.actualizar_valoracion, name='actualizar_valoracion'),
+    path('añadir_valoración/add/', añadir_valoracion, name='añadir_valoracion'),
     re_path('empresa/', views.empresa, name='empresa'),
 ]
 

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{# {% load staticfiles %} #}
+{% load static %}
+
+{% block head %}
+<title>Vpportafolio</title>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
+  integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ=="
+  crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
+  integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ=="
+  crossorigin="anonymous">
+{% endblock %}
+
+{% block content %}
+<br><br><br><br><br><br><br><br><br><br>
+<center>
+    <font size="3">
+        <h1>Curriculum de {{ curriculum.personal.nombre }} {{ curriculum.personal.apellido1 }} {{ curriculum.apellido2}}</h1>
+        <p>Email: {{ curriculum.email }}</p>
+        <p>Teléfono: {{ curriculum.telefono }}</p>
+        <h2>Estudios</h2>
+        <ul>
+            {% for estudio in estudios %}
+            <li>{{ estudio.estudio.nombre }}: {{ estudio.estudio.descripcion }}</li>
+            {% endfor %}
+        </ul>
+        <h2>Experiencia</h2>
+    </font>
+</center>
+{% if not request.user.is_authenticated %}
+{% endif %}
+
+{% if request.user.is_authenticated %}
+{% endif %}
+
+{% endblock content %}

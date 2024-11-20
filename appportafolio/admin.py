@@ -40,7 +40,8 @@ admin.site.register(Categoria, CategoriaAdmin)
 #{#diccionario}
 
 class EstudiosAdmin(admin.ModelAdmin):
-	list_display = [co.name for co in Estudio._meta.get_fields()]  # lista
+	#list_display = [co.name for co in Estudio._meta.get_fields()]  # lista
+	list_display = [field.name for field in Estudio._meta.fields]  # Solo incluye campos directos del modelo
 	search_fields = ('id', 'titulacion', 'fecha_inicio', 'fecha_fin', 'nota_media',
 					 "lugarEstudio", "nombreLugar", "ciudad", "presencial", "observaciones")  # tupla
 	list_filter = ('id', 'titulacion')
@@ -69,3 +70,28 @@ class VideoAdmin(admin.ModelAdmin):
 	list_display = [field.name for fields in Video._meta.get_fields() if hasattr(field, 'verbose_name')]
 	search_fields = ('id', 'video')
 admin.site.register(Video, VideoAdmin)
+
+#curriculum 14/11/24
+admin.site.register(Curriculum)
+#admin.site.register(Estudio)
+admin.site.register(DetalleCurriculumEstudio)
+admin.site.register(DetalleCurriculumExperiencia)
+
+#18/11/24
+class NoticiaAdmin(admin.ModelAdmin):
+	list_display = [field.name for field in Noticia._meta.get_fields() if hasattr(field, 'verbose_name')]
+	search_fields = ('id', 'titulo')
+admin.site.register(Noticia, NoticiaAdmin)
+
+#------------------------------------20-11-24----------------
+@admin.register(Valoracion)
+class ValoracionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'votos_entrevista', 'votos_empresa', 'media_aspectos', 'timestamp')
+    readonly_fields = ('media_aspectos',) #,?
+
+    def save_model(self, request, obj, form, change):
+
+        # Calcula automáticamente la media si los votos están presentes
+        if obj.votos_entrevista and obj.votos_empresa:
+            obj.media_aspectos = (obj.votos_entrevista + obj.votos_empresa) / 2
+        super().save_model(request, obj, form, change)
