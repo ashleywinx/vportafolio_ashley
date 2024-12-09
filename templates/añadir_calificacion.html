@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{# {% load staticfiles %} #}
+{% load static %}
+
+{% block head %}
+<title>Crear Valoracion</title>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+<!--<link rel="stylesheet" href="{% static 'css/cssEmail.css' %}">-->
+    <style>
+    .rating {
+        direction: rt1;
+        display: flex;
+        justify-content:flex-end;
+    }
+    .rating input {
+        display: none;
+    }
+    .rating label {
+        font-size:2rem;
+        color: #ccc;
+        cursor: pointer;
+    }
+    .rating input:checked ~ label,
+    .rating label:hover,
+    .rating label:hover ~ label {
+        color: #ffc107;
+    }
+    </style>
+
+{% endblock %}
+
+ {% block content %}
+     <br><br><br><br>
+     <div class="container mt-4">
+        <h1>Añadir Nueva Calificación</h1>
+         <form method="post">
+             {% csrf_token %}
+             <!--Campo para asignatura-->
+             <label for="asignatura ">Asignatura:</label>
+             <input type="text" id="asignatura" name="asignatura" placeholder="Ingrese asignatura" required>
+             <br>
+             <!--Campo para nota-->
+             <label for="nota">Nota:</label>
+             <input type="text" id="nota" name="nota" placeholder="Ingrese nota" required>
+             <br>
+             <!-- Boton que lo añade -->
+             <button type="submit" class="btn btn-primary">Añadir Valoración</button>
+         </form>
+     </div>
+
+  {% if not  request.user.is_authenticated %}
+  {% endif %}
+
+  {% if request.user.is_authenticated %}
+  {% endif %}
+
+ {% endblock content %}
+
+ {% block scripts %}
+ {% endblock %}

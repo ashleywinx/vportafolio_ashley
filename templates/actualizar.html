@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/jquery.datetimepicker.css' %}">
+<script src="{% static 'js/jquery.js' %}"></script>
+<script src="{% static 'js/jquery.datetimepicker.full.min.js' %}"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#id_fecha_hora').datetimepicker({
+            format: 'Y-m-d H:i'
+        });
+    });
+</script>
+{% block content %}
+<h1>Actualizar Evento</h1>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <label for="nombre">Nombre:</label>
+    <input type="text" name="nombre" id="nombre" value="{{ evento.nombre }}" required>
+
+    <label for="fecha_hora">Fecha y Hora:</label>
+    <input type="datetime-local" name="fecha_tarea" id="id_fecha_hora" value="{{ evento.fecha_tarea|date:'Y-m-d H:i' }}"
+           required placeholder="Selecciona una fecha y hora">
+
+    <!-- <select> de estados -->
+    <label for="id_fkestado">Estado:</label>
+    <select name="fkestado" id="id_fkestado">
+        {% for estado in estados %}
+            <option value="{{ estado.id }}" {% if estado.id == form.instance.fkestado.id %}selected{% endif %}>
+                {{ estado.estado }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <button type="submit">Actualizar</button>
+</form>
+{% endblock %}

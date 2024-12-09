@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<title>PORTFOLIO-CALIFICACIONES</title>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+<link rel="stylesheet" href="{% static 'css/cssCalificaciones.css' %}">
+{% endblock %}
+
+{% block content %}
+<center>
+    <font color="#686868" size="5" face="Comic Sans MS, Arial, Verdana">CALIFICACIONES</font>
+    <br><br>
+</center>
+
+<font size="3">
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th bgcolor="#F5DA81">ID</th>
+            <th bgcolor="#F5DA81">Asignatura</th>
+            <th bgcolor="#F5DA81">Nota</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for calificacion in calificaciones %}
+        <tr>
+            <td>{{ calificacion.id }}</td>
+            <td>{{ calificacion.asignatura }}</td>
+            <td>{{ calificacion.nota }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="2" style="text-align:right; font-weight:bold;">Nota media: {{ totalMedia }}</td>
+        </tr>
+    </tbody>
+</table>
+</font>
+
+{% endblock content %}

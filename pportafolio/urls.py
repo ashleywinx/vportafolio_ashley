@@ -62,6 +62,24 @@ urlpatterns = [
     path('listar_valoraciones/', views.listar_valoraciones, name='listar_valoraciones'),
     path('actualizar_valoracion/<int:pk>/edit/', views.actualizar_valoracion, name='actualizar_valoracion'),
     path('añadir_valoración/add/', añadir_valoracion, name='añadir_valoracion'),
+
+    path('chat_view/<int:entrevistador_id>/', views.chat_view, name='chat_view'),
+    path('chat/enviar/', views.enviar_mensaje, name='enviar_mensaje'),
+    path('seleccionar_entrevistadores/', views.seleccionar_entrevistadores, name='seleccionar_entrevistadores'), #importante
+
+    path('crear_noticia1/', views.crear_noticia1, name='crear_noticia1'),
+    #path('actualizar_evento/<int:evento_id>/', views.actualizar_evento, name='actualizar_evento'),
+
+    path('listar_calificaciones/',views.listar_calificaciones, name='listar_calificaciones'),
+    path('añadir_calificaciones/',views.añadir_calificacion, name='añadir_calificaciones'),
+
+    path('tareas/', views.lista_tareas, name='lista_tareas'),
+    path('tareas/crear/', views.crear_tarea, name='crear_tarea'),
+    path('tareas/actualizar/<int:evento_id>/', views.actualizar_evento, name='actualizar_evento'),
+
+    path('trabajo/listar/', views.lista_proyectos,name='lista_proyectos'),
+    #path('trabajo/crear/<int:proyecto_id>/', views.crear_proyecto, name='crear_ptoyecto'),
+    path('trabajo/crear/', views.crear_proyecto, name='crear_proyecto'),
     re_path('empresa/', views.empresa, name='empresa'),
 ]
 

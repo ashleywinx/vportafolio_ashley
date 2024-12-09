@@ -4,6 +4,9 @@ from __future__ import unicode_literals
 from django.shortcuts import render, redirect, get_object_or_404 #
 from django.http import HttpResponse
 from appportafolio.models import *
+from .models import Tarea , Estado # models.py
+from .forms import TareaForm  # Importa el formulario desde forms.py
+from .models import Trabajo, Calificacion
 
 from django.shortcuts import redirect #importante tenerlo
 
@@ -31,6 +34,9 @@ from reportlab.lib import colors #para los colores del pdf
 #curriculum con reportlab 14/11/24
 from reportlab.lib.utils import ImageReader
 import os
+
+#para el chat
+from django.http import JsonResponse
 
 #------------------------------------------------------------------------------------------------
 # Create your views here.
@@ -135,14 +141,15 @@ def login_view(request):
             login(request, user)
 
             actual=request.user #usuario actual
-            idusuario=0
             idusuario=actual.id
             request.session['idusuario']=idusuario
             print("idusuario="+str(idusuario))
+
             entrevistador=Entrevistador.objects.get(user=idusuario)
             idEntrevistador=entrevistador.id
             print("idEntrevistador="+str(idEntrevistador))
             print("FOTO="+str(entrevistador.avatar))
+
             fotoperfil=settings.MEDIA_URL+str(entrevistador.avatar) if entrevistador.avatar else settings.MEDIA_URL+"MONEDA3.jpg"
             print("avatar="+str(fotoperfil))
             context={'fotoperfil': fotoperfil}
@@ -451,7 +458,7 @@ def subir_imagenes(request):
         imagenes = request.FILES.getlist('imagenes')
 
         for imagen in imagenes:
-            if imagen.name.endswith(('.png', '.jpg', '.jpeg', '.gif', '.jfif')):
+            if imagen.name.endswith(('.png', '.PNG', '.jpg', '.JPG', '.jpeg', '.JPEG', '.gif', '.GIF', '.jfif', '.JFIF')):
                 img = Imagen()
                 img.imagen = imagen
                 img.save()
@@ -486,7 +493,7 @@ def subir_videos(request):
         videos = request.FILES.getlist('videos')
 
         for video in videos:
-            if video.name.endswith(('.mp3', '.mp4', '.mov', '.avi', '.mkv')):
+            if video.name.endswith(('.mp3', '.MP3', '.mp4', '.MP4', '.mov', '.MOV', '.avi', '.AVI', '.mkv', '.MKV')):
                 v=Video()
                 v.video=video
                 v.save()
@@ -525,11 +532,11 @@ def contacto(request):
         context = {'nombre': nombre, 'email': email, 'asunto': asunto, 'mensaje': mensaje}
         template = render_to_string('email_template.html', context=context)
 
-        email = EmailMessage(asunto, template, settings.EMAIL_HOST_USER, ['ashleychuquitarco2@gmail.com'])
-        email.fail_silenty = False #que no marque error en gmail
-        email.send()
+        email_message = EmailMessage(asunto, template, settings.EMAIL_HOST_USER, [email])
+        email_message.fail_silenty = False #que no marque error en gmail
+        email_message.send()
 
-        messages.success(request, "El mensaje se envió correctamente") #chatgpt
+        messages.success(request, "El mensaje se envió correctamente")
         return redirect('home')
     return render(request, 'correo.html')
 
@@ -538,9 +545,9 @@ def contacto(request):
 def agregar_curriculum(request):
     if request.method == 'POST':
         personal_id = request.POST.get('personal_id')
-        '''nombre = request.POST.get('nombre')
+        nombre = request.POST.get('nombre')
         ap1 = request.POST.get('ap1')
-        ap2 = request.POST.get('ap2')'''
+        ap2 = request.POST.get('ap2')
         email = request.POST.get('email')
         telefono = request.POST.get('telefono')
 
@@ -697,16 +704,161 @@ def añadir_valoracion(request):
 
         # Crear y guardar la nueva valoración
         nueva_valoracion = Valoracion.objects.create(
-            entrevista=entrevista,
-            empresa=empresa,
-            votos_entrevista=votos_entrevista,
-            votos_empresa=votos_empresa,
-            media_aspectos=media_aspectos
+            entrevista = entrevista,
+            empresa = empresa,
+            votos_entrevista = votos_entrevista,
+            votos_empresa = votos_empresa,
+            media_aspectos = media_aspectos
         )
 
         return redirect('listar_valoraciones')
 
     return render(request, 'add.html')
+
+#-------------------22-11-24- lo paso el profe ---------------------------------------------------
+@login_required
+def seleccionar_entrevistadores(request):
+    entrevistadores = Entrevistador.objects.all()
+    # Si el usuario está enviando un formulario, redirigir al chat con el entrevistador seleccionado
+    if request.method == 'POST':
+        entrevistador_id = request.POST.get('entrevistador_id')
+        return redirect('chat_view', entrevistador_id=entrevistador_id)
+    return render(request, 'seleccionar_entrevistador.html', {'entrevistadores': entrevistadores})
+
+#------------------- yo en casa -------------
+@login_required
+def chat_view(request, entrevistador_id):
+    entrevistador = get_object_or_404(Entrevistador, id=entrevistador_id)
+
+    mensajes = Mensaje.objects.filter(
+        (models.Q(remitente=request.user) & models.Q(destinatario=entrevistador.user)) |
+        (models.Q(remitente=entrevistador.user) & models.Q(destinatario=request.user))
+    )
+
+    # agregar la propiedad 'clase' para usarla en el template
+    for mensaje in mensajes:
+        mensaje.clase = 'enviado' if mensaje.remitente == request.user else 'recibido'
+
+    # renderizar solo el chat para la respuesta AJAX
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'mensajesHtml': render_to_string('chat_mensajes.html', {'mensajes': mensajes})  # ,
+        })
+
+    return render(request, 'chat.html', {'entrevistador': entrevistador, 'mensajes': mensajes})
+
+# ---------------------------------------------------------------------------------------------------
+@login_required
+def enviar_mensaje(request):
+    if request.method == 'POST':
+        contenido = request.POST.get('contenido')
+        destinatario_id = request.POST.get('destinatario_id')
+        destinatario = get_object_or_404(User, id=destinatario_id)
+
+        mensaje = Mensaje.objects.create(
+            remitente = request.user,
+            destinatario = destinatario,
+            contenido = contenido
+        )
+        return JsonResponse({'status': 'success', 'mensaje': mensaje.contenido, 'fecha_envio': mensaje.fecha_envio})
+
+    return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido'})
+
+#------------------------------------------------------------------------------------------------
+def crear_noticia1(request):
+    if request.method == 'POST':
+        form = NoticiaForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('lista_noticias')
+        else:
+            form = NoticiaForm()
+    return render(request, 'crear_noticia1.html', {'form': form})
+
+#-------------- calificaciones ---------------------------------------------------------------------------
+def listar_calificaciones(request):
+    calificaciones = Calificacion.objects.all().order_by('nota')
+    totalMedia = 0
+    i = 0
+    for media in calificaciones:
+        totalMedia = totalMedia + media.nota
+        i = i + 1
+    totalMedia = totalMedia/i
+    return render(request, "lista_calificaciones.html", {'calificaciones':calificaciones, 'totalMedia':totalMedia})
+
+def añadir_calificacion(request):
+    if request.method == "POST":
+        asignatura = request.POST.get('asignatura')
+        nota = int(request.POST.get('nota',0))
+
+        #Crear y guardar nueva calificacion
+        nueva_calificacion = Calificacion.objects.create(
+            asignatura = asignatura,
+            nota = nota,
+        )
+        return redirect('listar_calificaciones')
+    return render(request, 'añadir_calificacion.html')
+
+#-------------- TAREAS ---------------------------------------------------------------------------
+def lista_tareas(request):
+    tareas = Tarea.objects.all()
+    return render(request, 'lista_tareas.html', {'tareas': tareas})
+
+def crear_tarea(request):
+    if request.method == 'POST':
+        form = TareaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('lista_tareas')  # Redirige a la lista de tareas
+    else:
+        form = TareaForm()
+    return render(request, 'crear_tarea.html', {'form': form})
+
+def actualizar_evento(request, evento_id):
+    evento = get_object_or_404(Tarea, id=evento_id)
+    estados = Estado.objects.all()
+
+    if request.method == 'POST':
+        tarea = request.POST.get('nombre')
+        fecha_hora = request.POST.get('fecha_tarea')
+        fkestado_id = request.POST.get('fkestado')
+
+        # Actualiza los campos del modelo
+        evento.tarea = tarea
+        evento.fecha_tarea = fecha_hora
+        evento.fkestado_id = fkestado_id
+        evento.save()
+
+        return redirect('lista_tareas')
+
+    return render(request, 'actualizar.html', {'evento': evento, 'estados': estados})
+
+#------------------------------------------------------------------------------------------------
+def lista_proyectos(request):
+    proyectos = Trabajo.objects.all()
+    return render(request, 'lista_proyectos.html', {'proyectos':proyectos})
+
+def crear_proyecto(request):
+    if request.method == 'POST':
+        print(request.POST)
+        titulo = request.POST.get('titulo')
+        lenguaje = request.POST.get('lenguaje')
+        tecnologias = request.POST.get('tecnologias')
+        observaciones = request.POST.get('observaciones')
+        fecha_proyecto = request.POST.get('fecha_proyecto')
+
+        if titulo and fecha_proyecto:
+            trabajo = Trabajo.objects.create(
+                titulo=titulo,
+                lenguaje=lenguaje,
+                tecnologias=tecnologias,
+                observaciones=observaciones,
+                fecha_proyecto=fecha_proyecto,
+            )
+            return redirect('lista_proyectos')
+        else:
+            return HttpResponse("ERROR: El título y la fecha son obligatorios.", status=400)
+    return render(request, 'crear_proyecto.html')
 
 #------------------------------------------------------------------------------------------------
 #hecha por mi por aburrimiento

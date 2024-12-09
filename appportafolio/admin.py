@@ -5,10 +5,9 @@ from dataclasses import field
 
 from django.contrib import admin
 from appportafolio.models import *
-
-from django.contrib import admin #
-from appportafolio.models import * #
 from django.contrib.auth.models import User #
+from .models import Mensaje #chat
+from .models import Estado, Tarea
 
 #AÑADIR, EDITAR, ELIMINAR, ... DATOS COMO ADMINISTRADOR
 
@@ -76,6 +75,7 @@ admin.site.register(Curriculum)
 #admin.site.register(Estudio)
 admin.site.register(DetalleCurriculumEstudio)
 admin.site.register(DetalleCurriculumExperiencia)
+#admin.site.register(Mensaje)
 
 #18/11/24
 class NoticiaAdmin(admin.ModelAdmin):
@@ -95,3 +95,38 @@ class ValoracionAdmin(admin.ModelAdmin):
         if obj.votos_entrevista and obj.votos_empresa:
             obj.media_aspectos = (obj.votos_entrevista + obj.votos_empresa) / 2
         super().save_model(request, obj, form, change)
+
+#------------------------------------22-11-24---yo------29-11-24---------------
+@admin.register(Mensaje)
+class MensajeAdmin(admin.ModelAdmin):
+    list_display = ('remitente', 'destinatario', 'contenido_corto', 'fecha_envio', 'leido')
+    list_filter = ('leido', 'fecha_envio')
+    search_fields = ('remitente__username', 'destinatario__username', 'contenido')
+    ordering = ('-fecha_envio',)
+    list_per_page = 20
+
+    def contenido_corto(self, obj):
+        return obj.contenido[:50]
+    contenido_corto.short_description = 'Contenido'
+
+#------------------------------------------------------------------------------
+@admin.register(Estado)
+class EstadoAdmin(admin.ModelAdmin):
+    list_display = ("id", "estado")
+
+@admin.register(Tarea)
+class TareaAdmin(admin.ModelAdmin):
+    # Muestra el ID, tarea, fecha y nombre del estado
+    list_display = ("id", "tarea", "fecha_tarea", "estado_nombre")
+    list_filter = ("fkestado", "fecha_tarea")
+    search_fields = ("tarea",) #sin la , "coma" es una cadena y no una tupla que es lo que espera python
+
+    # Métdo para mostrar el nombre del estado en lugar del ID
+    def estado_nombre(self, obj):
+        return obj.fkestado.estado  # Muestra el nombre del estado (ajusta según tu modelo Estado)
+
+    estado_nombre.short_description = "Estado"  # Nombre legible para la columna en el admin
+
+@admin.register(Trabajo)
+class TrabajoAdmin(admin.ModelAdmin):
+	list_display = ("id", "titulo", "lenguaje", "tecnologias","observaciones", "fecha_proyecto")

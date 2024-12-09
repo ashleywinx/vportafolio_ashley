@@ -4,13 +4,15 @@ from django.db import models
 
 from django.contrib.auth.models import User #para el user
 from django.utils import timezone
+from .models import *
+
+from django import forms
 
 #LOS MODELOS SON LAS TABLAS DE LA BASE DE DATOS :)
 
 ################################################
 # Tabla 1 - Habilidades 
 ################################################
-
 class Habilidad(models.Model):  
 	id = models.AutoField(primary_key=True)
 	habilidad = models.CharField("Habilidad",max_length=25, null=True, blank=True)
@@ -27,8 +29,7 @@ class Habilidad(models.Model):
 ################################################
 # Personal
 ################################################
-	
-class Personal(models.Model): #herencia
+class Personal(models.Model):
 	id = models.AutoField(primary_key=True)
 	nombre = models.CharField("Nombre", max_length=25, null=True, blank=True)
 	apellido1 = models.CharField("Primer apellido", max_length=25, null=True, blank=True)
@@ -37,17 +38,16 @@ class Personal(models.Model): #herencia
 	usuario = models.ForeignKey(User, related_name='datos_usuario', null=True, blank=True, on_delete=models.PROTECT)
 
 	class Meta:
-		verbose_name="Personal"
-		verbose_name_plural="Personales"
-		ordering = ['nombre'] #orden por defecto
-	
-	def __str__ (self): #str para concatenar
-		return '%s, %s, %s, %s' % (self.nombre, self.apellido1, self.apellido2, self.edad)
+		verbose_name = "Personal"
+		verbose_name_plural = "Personales"
+		ordering = ['nombre']
+
+	def __str__(self):
+		return f'{self.nombre}, {self.apellido1}, {self.apellido2}, {self.edad}'
 
 ################################################
 # Categoria
 ################################################
-
 class Categoria(models.Model):
 	id = models.AutoField(primary_key=True)
 	nombre_categoria = models.CharField("Nombre", max_length=25, null=True, blank=True)
@@ -63,7 +63,6 @@ class Categoria(models.Model):
 ##################################
 # ESTUDIOS                       #
 ##################################
-
 class Estudio(models.Model):
 	id = models.AutoField(primary_key=True)
 	titulacion = models.TextField("Titulo", null=True, blank=True)
@@ -88,7 +87,6 @@ class Estudio(models.Model):
 ################################################
 # 2 - Experiencia != ver_experiencia
 ################################################
-
 class Experiencia(models.Model):
     id = models.AutoField(primary_key=True)
     empresa = models.CharField('Empresa',max_length=50,null=True, blank=True)
@@ -109,7 +107,6 @@ class Experiencia(models.Model):
 #######################
 # Los Entrevistadores # 29/10/2024
 #######################
-
 class Entrevistador(models.Model):
 	id = models.AutoField(primary_key=True)
 	avatar = models.ImageField('Avatar', blank=True, null=True, upload_to="media/")
@@ -132,7 +129,6 @@ class Entrevistador(models.Model):
 #######################
 # IMÁGENES # 31/10/24 #
 #######################
-
 class Imagen(models.Model):
 	id = models.AutoField(primary_key=True)
 	imagen = models.ImageField("Imagen", blank=True, null=True, upload_to="imagenes/")
@@ -149,7 +145,6 @@ class Imagen(models.Model):
 #####################
 # VIDEOS # 31/10/24 #
 #####################
-
 class Video(models.Model):
 	id = models.AutoField(primary_key=True)
 	video = models.FileField("Video", blank=True, null=True, upload_to="videos/")
@@ -166,22 +161,19 @@ class Video(models.Model):
 ################################################
 # CURRICULUM - 8/11/24 - YO - 14/11/24
 ################################################
-class Curriculum (models.Model):
-	id = models.AutoField(primary_key=True)
-	personal = models.ForeignKey(Personal, on_delete=models.CASCADE, related_name='curriculums')
-	email = models.EmailField("Email", max_length=100, null=True, blank=True) #se valida solo
-	telefono = models.IntegerField("Telefono", null=True, blank=True) #no puede tener max_length
+class Curriculum(models.Model):
+    id = models.AutoField(primary_key=True)
+    personal = models.ForeignKey('Personal', on_delete=models.CASCADE, related_name='curriculums')
+    email = models.EmailField("Email", max_length=100, null=True, blank=True)
+    telefono = models.IntegerField("Telefono", null=True, blank=True)
 
-	class Meta:
-		verbose_name = 'curriculum'
-		verbose_name_plural = 'curriculums'
-		ordering = ['id']
+    class Meta:
+        verbose_name = 'curriculum'
+        verbose_name_plural = 'curriculums'
+        ordering = ['id']
 
-	def __str__(self):
-		# Accediendo a los campos del modelo Personal a través de la relación
-		return f"Curriculum de {self.personal.nombre} {self.personal.apellido1} {self.personal.apellido2}"
-		#return "%s, %s, %s, %s, %s, %s" % (self.id, self.nombre, self.ap1, self.ap2, self.email, self.telefono)
-#--------- yo ------
+    def __str__(self):
+        return f"Curriculum de {self.personal.nombre} {self.personal.apellido1} {self.personal.apellido2}"
 
 # Modelo DetalleCurriculumEstudio
 class DetalleCurriculumEstudio(models.Model):
@@ -230,3 +222,77 @@ class Valoracion (models.Model):
 
 	def __str__(self):
 		return f"{self.id}, {self.votos_entrevista}, {self.votos_empresa}, {self.media_aspectos}, {self.entrevista}, {self.timestamp}"
+
+################################################
+# CHAT - 22/11/24
+################################################
+class Mensaje(models.Model):
+	remitente = models.ForeignKey(User, related_name='mensajes_enviados', on_delete=models.CASCADE)
+	destinatario =  models.ForeignKey(User, related_name='mensajes_recibidos', on_delete=models.CASCADE)
+	contenido = models.TextField('Contenido del mensaje')
+	fecha_envio = models.DateTimeField('Fecha de envio', auto_now_add=True)
+	leido = models.BooleanField('Leido', default=False)
+
+	class Meta:
+		ordering = ['fecha_envio']
+
+	def __str__(self):
+		return f"De: {self.remitente.username} Para: {self.destinatario.username} - {self.contenido[:30]}"
+
+#########################
+# calificaciones
+#########################
+class Calificacion(models.Model):
+    id = models.AutoField(primary_key=True)
+    asignatura = models.CharField("Asignatura", max_length=200, null = True, blank = True)
+    nota = models.DecimalField("Nota", max_digits=3, decimal_places=1, null = True, blank = True)
+
+    class Meta:
+        verbose_name = "Calificacion"
+        verbose_name_plural = "Calificaciones"
+        ordering = ['id']
+
+    def __str__(self):
+        return f"{self.asignatura},{self.nota}"
+
+################################################
+# ESTADO Y TAREAS
+################################################
+class Estado(models.Model):
+    id = models.AutoField(primary_key=True)
+    estado = models.CharField(max_length=100, verbose_name="Estado")
+
+    def __str__(self):
+        return self.estado  # Representación en texto del estado
+
+#-----------------------------------------------
+class Tarea(models.Model):
+    id = models.AutoField(primary_key=True)
+    tarea = models.CharField("Anotar Tarea", max_length=200, null=True, blank=True)
+    fecha_tarea = models.DateTimeField('Fecha de envio', default=timezone.now) #guarda fecha local y deja actualizar en el form
+    fkestado = models.ForeignKey(Estado, on_delete=models.CASCADE, related_name="tareas", verbose_name="Estado asociado")
+
+    class Meta:
+        verbose_name = "Tarea"
+        verbose_name_plural = "Tareas"
+        ordering = ['fecha_tarea']  # Orden por defecto
+
+    def __str__(self):
+        return self.tarea or f"Tarea sin descripción (ID: {self.id})"
+
+# EXAMEN-----------------------------------------------
+class Trabajo(models.Model):
+	id = models.AutoField(primary_key=True)
+	titulo = models.CharField("nombre proyecto", max_length=200, null=True, blank=True)
+	lenguaje = models.CharField(max_length=100, verbose_name="Estado")
+	tecnologias = models.CharField(max_length=100, verbose_name="Estado")
+	observaciones = models.TextField("Observaciones", null=True, blank=True)
+	fecha_proyecto = models.DateField('Fecha de envio', auto_now_add=True)
+
+	class Meta:
+		verbose_name = "Trabajo"
+		verbose_name_plural = "Trabajos"
+		ordering = ["fecha_proyecto"]
+
+	def __str__(self):
+		return f"{self.id}, {self.titulo}, {self.lenguaje}, {self.tecnologias}, {self.observaciones}, {self.fecha_proyecto}"

@@ -1,0 +1,114 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+ul, ol {
+    list-style: none; /* Quita las viñetas o números */
+    padding: 0; /* Opcional: elimina el espacio de relleno */
+}
+
+/* Navbar General */
+.menu-nav {
+    background-color: #F7F9F9;
+    padding: 10px 0;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar-principal {
+    display: flex;
+    list-style: none;
+}
+
+.navbar-principal li {
+    position: relative;
+    margin-right: 20px;
+}
+
+.navbar-principal li a {
+    color: #000;
+    text-decoration: none;
+    padding: 10px 15px;
+    transition: background-color 0.3s ease;
+}
+
+.navbar-principal li a:hover {
+    background-color: #FF66B2;
+    color: #FFF;
+}
+
+/* Dropdown */
+.dropdown .desplegable {
+    display: none;
+    position: absolute;
+    background-color: #F7F9F9;
+    list-style: none;
+    padding: 0;
+    border: 1px solid #ddd;
+    z-index: 1000;
+}
+
+.dropdown:hover .desplegable {
+    display: block;
+}
+
+.desplegable li a {
+    padding: 10px 15px;
+    display: block;
+}
+
+.desplegable li a:hover {
+    background-color: #FF66B2;
+    color: #FFF;
+}
+
+/* Botones de sesión */
+.nav-botones a {
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: #FFF;
+}
+
+.btn-entar {
+    background-color: #007BFF;
+}
+
+.btn-registro {
+    background-color: #28A745;
+}
+
+.btn-entar:hover {
+    background-color: #0056B3;
+}
+
+.btn-registro:hover {
+    background-color: #218838;
+}
+
+.btn-cerrar {
+    background-color: #007BFF; /* Azul */
+    color: #FFF; /* Blanco */
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-cerrar:hover {
+    background-color: #0056B3; /* Azul más oscuro al pasar el mouse */
+    color: #FFF; /* Mantén el texto blanco */
+}
+
+.navbar-imagen img {
+    width: 80px; /* Ajusta el ancho según lo que necesites */
+    height: 80px; /* Ajusta el alto según lo que necesites */
+    transition: transform 0.3s ease; /* Animación opcional */
+}

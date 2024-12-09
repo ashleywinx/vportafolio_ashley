@@ -9,8 +9,8 @@
 {% endblock %}
 
 {% block content %}
-<br><br><br><br>
-<div class="container">
+<br><br><br><br><br><br><br><br>
+<div class="container-fluid">
     <p class="text-white h2">INICIAR SESIÓN</p>
     <hr>
     <form method="post">
@@ -18,7 +18,7 @@
         <label for="username">Username:</label>
         <input type="text" name="username" required></input>
         <label for="password">Password:</label>
-        <input type="text" name="password" required></input>
+        <input type="password" name="password" required></input>
         <button type="submit">Login</button>
         {% if error %}
             <p>{{ error }}</p>

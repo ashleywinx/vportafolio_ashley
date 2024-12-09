@@ -37,7 +37,6 @@
 {% endblock %}
 
 {% block content %}
-<br><br><br><br><br><br><br><br>
 <h1>Subir Videos</h1>
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
@@ -91,7 +90,7 @@
   //JavaScript para mostrar el campo de entrada de archivo y el botón de "Guardar" solo al hacer clic en "Eidtar"
   function mostrarInput(videoId){
     //oculta todos los formularios de edición para evitar duplicados visibles
-    document.querySelectorAll('[id^="form editar"]').forEach(form => form.style.sisplay='none');
+    document.querySelectorAll('[id^="form-editar"]').forEach(form => form.style.sisplay='none');
 
     //muestra el formulario correspondiente a la imagen seleccionada
     document.getElementById('form-editar-'+videoId).style.display = 'block';

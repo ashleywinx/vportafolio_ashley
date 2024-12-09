@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{# {% load staticfiles %} #}
+{% load static %}
+
+{% block head %}
+<title>Vpportafolio proyectos</title>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
+  integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ=="
+  crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
+  integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ=="
+  crossorigin="anonymous">
+{% endblock %}
+
+{% block content %}
+<font size="3">
+    <a class='btn btn-success btn-sm' href="{% url 'crear_proyecto' %}">CREAR NUEVA HABILIDAD</a>
+<table class="table table-bordered">
+	<thead>
+        <tr>
+			<th bgcolor="#F5DA81">ID</th>
+			<th bgcolor="#F5DA81">TITULO</th>
+            <th bgcolor="#F5DA81">LENGUAJE</th>
+            <th bgcolor="#F5DA81">TECNOLOGIAS</th>
+            <th bgcolor="#F5DA81">OBSERVACIONES</th>
+            <th bgcolor="#F5DA81">FECHA</th>
+        </tr>
+    </thead>
+	<tbody>
+        {% for proyecto in proyectos %}
+        <tr>
+			<td> {{ proyecto.id }} </td>
+            <td> {{ proyecto.titulo|upper|slice:"0:12" }} </td>
+            <td> {{ proyecto.lenguaje|upper|slice:"0:12" }} </td>
+            <td> {{ proyecto.tecnologias|upper|slice:"0:12" }} </td>
+            <td> {{ proyecto.observaciones|upper|slice:"0:12" }} </td>
+            <td> {{ proyecto.fecha_proyecto }}</td>
+        </tr>
+        {% endfor %}
+		 </tbody>
+    </table>
+</font>
+{% endblock content %}
+
+{% block scripts %}
+{% endblock %}

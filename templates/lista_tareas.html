@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<title>Lista de Tareas</title>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
+  integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ=="
+  crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
+  integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ=="
+  crossorigin="anonymous">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Lista de Tareas</h1>
+    <a href="{% url 'crear_tarea' %}" class="btn btn-primary mb-4">Crear Nueva Tarea</a>
+    <ul class="list-group">
+        {% for tarea in tareas %}
+            <li class="list-group-item">
+                <h4>{{ tarea.tarea }}</h4>
+                <p><strong>Estado:</strong> {{ tarea.fkestado }}</p>
+                <small class="text-muted">Creada el {{ tarea.fecha_tarea|date:"d M Y H:i" }}</small>
+                <div class="mt-2">
+                    <a href="{% url 'actualizar_evento' tarea.id %}" class="btn btn-warning btn-sm">Actualizar</a>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+{% endblock %}
